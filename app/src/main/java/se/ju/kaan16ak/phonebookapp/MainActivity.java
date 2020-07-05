@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         cwButton = findViewById(R.id.coworkerButton);
         contactIB = findViewById(R.id.addUserButton);
 
+        parseJson();
         modifyContactInfo();
     }
 
@@ -157,46 +158,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void friendsButtonClicked(View view) {
+        JSONParser parser = new JSONParser();
 
-        ArrayList <ItemModel> arrayListCopy = new ArrayList<>();
-
-        parseJson();
+        arrayList.clear();
         try {
-            for (int i = 0; i < arrayList.size(); i++) {
 
-                if (arrayList.get(i).getCompany().length() < 1) {
+            JSONObject object = (JSONObject) parser.parse(readJSON());
+            JSONArray array = (JSONArray) object.get("contacts");
 
-                    String id = arrayList.get(i).getId();
-                    String name = arrayList.get(i).getName();
-                    String company = arrayList.get(i).getCompany();
-                    String phone = arrayList.get(i).getPhone();
+            for (int i = 0; i < array.size(); i++) {
 
-                    if (!arrayList.contains(id)) {
-                        ItemModel friend = new ItemModel();
-                        friend.setId(id);
-                        friend.setName(name);
-                        friend.setCompany(company);
-                        friend.setPhone(phone);
-                        arrayListCopy.add(friend);
+                JSONObject jsonObject = (JSONObject) array.get(i);
+                String company = (String) jsonObject.get("company");
 
-                    }
+                if (company.length() < 1) {
+                    String id = (String) jsonObject.get("_id");
+                    String name = (String) jsonObject.get("name");
+                    String phone = (String) jsonObject.get("phone");
+
+                    ItemModel friend = new ItemModel();
+                    friend.setId(id);
+                    friend.setName(name);
+                    friend.setCompany(company);
+                    friend.setPhone(phone);
+                    arrayList.add(friend);
+
                 }
             }
-            arrayList = arrayListCopy;
-        } catch (Exception e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
     }
 
     public void coworkersButtonClicked(View view) {
 
-        ArrayList <ItemModel> arrayListCopy = new ArrayList<>();
+      /*  ArrayList <ItemModel> arrayListCopy = new ArrayList<>();
 
-        parseJson();
         try {
             for (int i = 0; i < arrayList.size(); i++) {
 
@@ -226,6 +227,44 @@ public class MainActivity extends AppCompatActivity {
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
+
+       */
+
+
+        JSONParser parser = new JSONParser();
+
+        arrayList.clear();
+        try {
+
+            JSONObject object = (JSONObject) parser.parse(readJSON());
+            JSONArray array = (JSONArray) object.get("contacts");
+
+            for (int i = 0; i < array.size(); i++) {
+
+                JSONObject jsonObject = (JSONObject) array.get(i);
+                String company = (String) jsonObject.get("company");
+
+                if(company.length() > 0) {
+                    String id = (String) jsonObject.get("_id");
+                    String name = (String) jsonObject.get("name");
+                    String phone = (String) jsonObject.get("phone");
+
+                    ItemModel friend = new ItemModel();
+                    friend.setId(id);
+                    friend.setName(name);
+                    friend.setCompany(company);
+                    friend.setPhone(phone);
+                    arrayList.add(friend);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        CustomAdapter adapter = new CustomAdapter(this, arrayList);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
     }
 
     public String readJSON() {
