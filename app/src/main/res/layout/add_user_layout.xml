@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/inputName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name: "
+        android:inputType="text"
+        android:scrollbars="vertical" />
+
+    <EditText
+        android:id="@+id/inputID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID: "
+        android:inputType="text"
+        android:scrollbars="vertical" />
+
+    <EditText
+        android:id="@+id/inputCompany"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Company: "
+        android:inputType="text"
+        android:scrollbars="vertical" />
+
+    <EditText
+        android:id="@+id/inputPhone"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone: "
+        android:inputType="phone"
+        android:scrollbars="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/add" />
+
+        <Button
+            android:id="@+id/cancelAddButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+    </LinearLayout>
+
+</LinearLayout>

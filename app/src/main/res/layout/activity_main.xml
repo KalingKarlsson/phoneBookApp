@@ -9,27 +9,42 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/friendsButton"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:onClick="friendsButtonClicked"
-            android:text="Friends" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/coworkerButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="coworkersButtonClicked"
-            android:text="Colleagues" />
+            <Button
+                android:id="@+id/friendsButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:onClick="friendsButtonClicked"
+                android:text="Friends" />
 
+            <Button
+                android:id="@+id/coworkerButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:onClick="coworkersButtonClicked"
+                android:text="Colleagues" />
+
+            <ImageButton
+                android:id="@+id/addUserButton"
+                android:layout_width="275dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:onClick="addUserButtonClicked"
+                android:scaleType="fitCenter"
+                android:src="@drawable/add"
+                android:text="Add User" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -40,7 +55,7 @@
 
         <ListView
             android:id="@+id/listBookView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"></ListView>
     </LinearLayout>
 

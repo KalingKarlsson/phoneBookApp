@@ -1,28 +1,27 @@
 package se.ju.kaan16ak.phonebookapp;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 import org.json.simple.JSONArray;
-import org.json.JSONException;
 import org.json.simple.JSONObject;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,44 +30,29 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ItemModel> arrayList;
     Button fButton;
     Button cwButton;
+    ImageButton contactIB;
     EditText userId;
     EditText userName;
     EditText userCompany;
     EditText userPhone;
+    EditText changeUserName;
+    EditText changeUserId;
+    EditText changeUserCompany;
+    EditText changeUserPhone;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.listBookView);
         arrayList = new ArrayList<>();
+
         fButton = findViewById(R.id.friendsButton);
         cwButton = findViewById(R.id.coworkerButton);
+        contactIB = findViewById(R.id.addUserButton);
 
-        try {
-            JSONObject object = new JSONObject(readJSON());
-            JSONArray array = object.getJSONArray("contacts");
-            for (int i = 0; i < array.length(); i++) {
-
-                JSONObject jsonObject = array.getJSONObject(i);
-
-                String company = jsonObject.getString("company");
-                String id = jsonObject.getString("_id");
-                String name = jsonObject.getString("name");
-                String phone = jsonObject.getString("phone");
-
-                ItemModel model = new ItemModel();
-                model.setId(id);
-                model.setName(name);
-                model.setCompany(company);
-                model.setPhone(phone);
-                arrayList.add(model);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        CustomAdapter adapter = new CustomAdapter(this, arrayList);
-        listView.setAdapter(adapter);
+        modifyContactInfo();
     }
 
     @Override
@@ -77,183 +61,137 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+    public void addUserButtonClicked(View vv) {
 
-        if (id == R.id.mybutton) {
+        final CustomAdapter addAdapter = new CustomAdapter(this, arrayList);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        final View addView = inflater.inflate(R.layout.add_user_layout, null);
 
-            LayoutInflater inflater = LayoutInflater.from(this);
-            final View view = inflater.inflate(R.layout.alert_main, null);
+        final AlertDialog builder = new AlertDialog.Builder(MainActivity.this).create();
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setIcon(R.drawable.add);
+        builder.setTitle("Add User");
 
-            userId =  findViewById(R.id.inputID);
-            userName = findViewById(R.id.inputName);
-            userCompany = findViewById(R.id.inputCompany);
-            userPhone = findViewById(R.id.inputPhone);
+        Button add = addView.findViewById(R.id.addButton);
+        Button cancel = addView.findViewById(R.id.cancelAddButton);
 
-            builder.setIcon(R.drawable.add);
-            builder.setTitle("Add User");
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userName = builder.findViewById(R.id.inputName);
+                userId = builder.findViewById(R.id.inputID);
+                userCompany = builder.findViewById(R.id.inputCompany);
+                userPhone = builder.findViewById(R.id.inputPhone);
 
-            builder.setCancelable(false);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                builder.setPositiveButton(getResources().getString(R.string.add), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // add user to array, clear arrayarrayList.clear();
+                String addUserName = userName.getText().toString();
+                String addUserId = userId.getText().toString();
+                String addUserCompany = userCompany.getText().toString();
+                String addUserPhone = userPhone.getText().toString();
 
-                        JSONObject obj = new JSONObject();
-                        obj.put("name", "facebook");
+                if (arrayList.contains(addUserId)) {
+                    Toast.makeText(getBaseContext(), "User is alredasy in contact-list", Toast.LENGTH_LONG).show();
+                } else if (addUserName == null || addUserName.equals("")) {
+                    Toast.makeText(getBaseContext(), "Invalid input, is empty", Toast.LENGTH_LONG).show();
+                } else if (addUserPhone.matches("[0-9]") && addUserPhone.length() > 2) {
+                    Toast.makeText(getBaseContext(), "Invalid phone number", Toast.LENGTH_LONG).show();
+                } else {
+                    ItemModel friend = new ItemModel();
+                    friend.setName(addUserName);
+                    friend.setId(addUserId);
+                    friend.setCompany(addUserCompany);
+                    friend.setPhone(addUserPhone);
+                    arrayList.add(friend);
 
-                        obj.put("name", "mkyong.com");
-                        obj.put("age", 100);
-
-                        JSONArray list = new JSONArray();
-                        list.add("msg 1");
-                        list.add("msg 2");
-                        list.add("msg 3");
-
-                        obj.put("messages", list);
-
-                        try (FileWriter file = new FileWriter("c:\\projects\\test.json")) {
-                            file.write(obj.toJSONString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        System.out.print(obj);
-
-
-
-
-
-                        /*
-                        String id = userId.getText().toString();
-                        String company = userCompany.getText().toString();
-                        String name = userName.getText().toString();
-                        String phone = userPhone.getText().toString();
-
-                        ItemModel model = new ItemModel();
-                        model.setId(id);
-                        model.setName(name);
-                        model.setCompany(company);
-                        model.setPhone(phone);
-                        arrayList.add(model);*/
-
-
-                    }
-                });
-
-                CustomAdapter adapter = new CustomAdapter(this, arrayList);
-                listView.setAdapter(adapter);
-            }
-            builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.cancel();
+                    listView.setAdapter(addAdapter);
+                    addAdapter.notifyDataSetChanged();
+                    builder.cancel();
                 }
-            });
+            }
+        });
 
-            AlertDialog dialog = builder.create();
-            dialog.setView(view);
-            dialog.show();
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.cancel();
+            }
+        });
+
+        if (addView.getParent() != null) {
+            ((ViewGroup) addView.getParent()).removeView(addView);
         }
-        return super.onOptionsItemSelected(item);
+
+        builder.setView(addView);
+        builder.show();
     }
 
-   /* public void parseJson (){
-
-        try {
-            JSONObject object = new JSONObject(readJSON());
-            JSONArray array = object.getJSONArray("contacts");
-            for (int i = 0; i < array.length(); i++) {
-
-                JSONObject jsonObject = array.getJSONObject(i);
-                String id = jsonObject.getString("_id");
-                String name = jsonObject.getString("name");
-                String company = jsonObject.getString("company");
-                String phone = jsonObject.getString("phone");
-
-                ItemModel model = new ItemModel();
-                model.setId(id);
-                model.setName(name);
-                model.setCompany(company);
-                model.setPhone(phone);
-                arrayList.add(model);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        CustomAdapter adapter = new CustomAdapter(this, arrayList);
-        listView.setAdapter(adapter);
-    }*/
-
-
-    public void friendsButtonClicked(View view){
+    public void friendsButtonClicked(View view) {
 
         arrayList.clear();
+        JSONParser parser = new JSONParser();
         try {
-            JSONObject object = new JSONObject(readJSON());
-            JSONArray array = object.getJSONArray("contacts");
-            for (int i = 0; i < array.length(); i++) {
 
-                JSONObject jsonObject = array.getJSONObject(i);
+            JSONObject object = (JSONObject) parser.parse(readJSON());
+            JSONArray array = (JSONArray) object.get("contacts");
 
-                String company = jsonObject.getString("company");
+            for (int i = 0; i < array.size(); i++) {
 
-                if (company.length() <= 0 ){
-                    String id = jsonObject.getString("_id");
-                    String name = jsonObject.getString("name");
-                    String phone = jsonObject.getString("phone");
+                JSONObject jsonObject = (JSONObject) array.get(i);
+                String company = (String) jsonObject.get("company");
 
-                    ItemModel model = new ItemModel();
-                    model.setId(id);
-                    model.setName(name);
-                    model.setCompany(company);
-                    model.setPhone(phone);
-                    arrayList.add(model);
+                if (company.length() < 1) {
+                    String id = (String) jsonObject.get("_id");
+                    String name = (String) jsonObject.get("name");
+                    String phone = (String) jsonObject.get("phone");
+
+                    ItemModel friend = new ItemModel();
+                    friend.setId(id);
+                    friend.setName(name);
+                    friend.setCompany(company);
+                    friend.setPhone(phone);
+                    arrayList.add(friend);
                 }
             }
-        } catch (JSONException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
-
-
-    public void coworkersButtonClicked(View view){
+    public void coworkersButtonClicked(View view) {
 
         arrayList.clear();
+        JSONParser parser = new JSONParser();
         try {
-            JSONObject object = new JSONObject(readJSON());
-            JSONArray array = object.getJSONArray("contacts");
-            for (int i = 0; i < array.length(); i++) {
 
-                JSONObject jsonObject = array.getJSONObject(i);
+            JSONObject object = (JSONObject) parser.parse(readJSON());
+            JSONArray array = (JSONArray) object.get("contacts");
 
-                String company = jsonObject.getString("company");
+            for (int i = 0; i < array.size(); i++) {
 
-                if (company.length() > 0 ){
-                    String id = jsonObject.getString("_id");
-                    String name = jsonObject.getString("name");
-                    String phone = jsonObject.getString("phone");
+                JSONObject jsonObject = (JSONObject) array.get(i);
+                String company = (String) jsonObject.get("company");
 
-                    ItemModel model = new ItemModel();
-                    model.setId(id);
-                    model.setName(name);
-                    model.setCompany(company);
-                    model.setPhone(phone);
-                    arrayList.add(model);
+                if (company.length() > 0) {
+                    String id = (String) jsonObject.get("_id");
+                    String name = (String) jsonObject.get("name");
+                    String phone = (String) jsonObject.get("phone");
+
+                    ItemModel coWorker = new ItemModel();
+                    coWorker.setId(id);
+                    coWorker.setName(name);
+                    coWorker.setCompany(company);
+                    coWorker.setPhone(phone);
+                    arrayList.add(coWorker);
                 }
             }
-        } catch (JSONException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     public String readJSON() {
@@ -273,5 +211,92 @@ public class MainActivity extends AppCompatActivity {
             return json;
         }
         return json;
+    }
+
+    public void modifyContactInfo() {
+
+        final CustomAdapter adapter = new CustomAdapter(this, arrayList);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        final View view = inflater.inflate(R.layout.modify_user_layout, null);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> a, View v, final int position, long id) {
+                final AlertDialog ad = new AlertDialog.Builder(MainActivity.this).create();
+                ad.setTitle("Update or Delete?");
+                ad.setMessage("Here you can change or delete " + arrayList.get(position).getName() + " information");
+
+
+                Button update = view.findViewById(R.id.updateButton);
+                Button cancel = view.findViewById(R.id.cancelButton);
+                Button delete = view.findViewById(R.id.deleteButton);
+
+                ad.setCancelable(false);
+
+                update.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+                        changeUserName = ad.findViewById(R.id.changeName);
+                        changeUserId = ad.findViewById(R.id.changeID);
+                        changeUserCompany = ad.findViewById(R.id.changeCompany);
+                        changeUserPhone = ad.findViewById(R.id.changePhone);
+
+                        String changeName = changeUserName.getText().toString();
+                        String changeId = changeUserId.getText().toString();
+                        String changeCompany = changeUserCompany.getText().toString();
+                        String changePhone = changeUserPhone.getText().toString();
+
+                        ItemModel friend = new ItemModel();
+                        if(changeName.isEmpty() || changeId.isEmpty() || changePhone.isEmpty()){
+                            Toast.makeText(getBaseContext(), "Fill in text first", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            friend.setName(changeName);
+                            friend.setId(changeId);
+                            friend.setCompany(changeCompany);
+                            friend.setPhone(changePhone);
+                            arrayList.set(position, friend);
+
+                            listView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                            ad.cancel();
+                        }
+                        ((EditText) ad.findViewById(R.id.changeName)).setText("");
+                        ((EditText) ad.findViewById(R.id.changeName)).setHint("Name: ");
+
+                        ((EditText) ad.findViewById(R.id.changeID)).setText("");
+                        ((EditText) ad.findViewById(R.id.changeID)).setHint("ID: ");
+
+                        ((EditText) ad.findViewById(R.id.changeCompany)).setText("");
+                        ((EditText) ad.findViewById(R.id.changeCompany)).setHint("Company: ");
+
+                        ((EditText) ad.findViewById(R.id.changePhone)).setText("");
+                        ((EditText) ad.findViewById(R.id.changePhone)).setHint("Phone: ");
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ad.cancel();
+                    }
+                });
+                delete.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        ItemModel contact = arrayList.get(position);
+                        arrayList.remove(contact);
+                        listView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                        ad.cancel();
+                    }
+                });
+
+                if (view.getParent() != null) {
+                    ((ViewGroup) view.getParent()).removeView(view);
+                }
+                ad.setView(view);
+                ad.show();
+            }
+        });
     }
 }
