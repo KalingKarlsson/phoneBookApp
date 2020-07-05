@@ -61,6 +61,38 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void parseJson(){
+        JSONParser parser = new JSONParser();
+        try {
+
+            JSONObject object = (JSONObject) parser.parse(readJSON());
+            JSONArray array = (JSONArray) object.get("contacts");
+
+            for (int i = 0; i < array.size(); i++) {
+
+                JSONObject jsonObject = (JSONObject) array.get(i);
+                String company = (String) jsonObject.get("company");
+
+                String id = (String) jsonObject.get("_id");
+                String name = (String) jsonObject.get("name");
+                String phone = (String) jsonObject.get("phone");
+
+                ItemModel friend = new ItemModel();
+                friend.setId(id);
+                friend.setName(name);
+                friend.setCompany(company);
+                friend.setPhone(phone);
+                arrayList.add(friend);
+
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        CustomAdapter adapter = new CustomAdapter(this, arrayList);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
     public void addUserButtonClicked(View vv) {
 
         final CustomAdapter addAdapter = new CustomAdapter(this, arrayList);
@@ -126,34 +158,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void friendsButtonClicked(View view) {
 
-        arrayList.clear();
-        JSONParser parser = new JSONParser();
+        ArrayList <ItemModel> arrayListCopy = new ArrayList<>();
+
+        parseJson();
         try {
+            for (int i = 0; i < arrayList.size(); i++) {
 
-            JSONObject object = (JSONObject) parser.parse(readJSON());
-            JSONArray array = (JSONArray) object.get("contacts");
+                if (arrayList.get(i).getCompany().length() < 1) {
 
-            for (int i = 0; i < array.size(); i++) {
+                    String id = arrayList.get(i).getId();
+                    String name = arrayList.get(i).getName();
+                    String company = arrayList.get(i).getCompany();
+                    String phone = arrayList.get(i).getPhone();
 
-                JSONObject jsonObject = (JSONObject) array.get(i);
-                String company = (String) jsonObject.get("company");
+                    if (!arrayList.contains(id)) {
+                        ItemModel friend = new ItemModel();
+                        friend.setId(id);
+                        friend.setName(name);
+                        friend.setCompany(company);
+                        friend.setPhone(phone);
+                        arrayListCopy.add(friend);
 
-                if (company.length() < 1) {
-                    String id = (String) jsonObject.get("_id");
-                    String name = (String) jsonObject.get("name");
-                    String phone = (String) jsonObject.get("phone");
-
-                    ItemModel friend = new ItemModel();
-                    friend.setId(id);
-                    friend.setName(name);
-                    friend.setCompany(company);
-                    friend.setPhone(phone);
-                    arrayList.add(friend);
+                    }
                 }
             }
-        } catch (ParseException e) {
+            arrayList = arrayListCopy;
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
@@ -161,34 +194,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void coworkersButtonClicked(View view) {
 
-        arrayList.clear();
-        JSONParser parser = new JSONParser();
+        ArrayList <ItemModel> arrayListCopy = new ArrayList<>();
+
+        parseJson();
         try {
+            for (int i = 0; i < arrayList.size(); i++) {
 
-            JSONObject object = (JSONObject) parser.parse(readJSON());
-            JSONArray array = (JSONArray) object.get("contacts");
+                if (arrayList.get(i).getCompany().length() > 0) {
 
-            for (int i = 0; i < array.size(); i++) {
+                    String id = arrayList.get(i).getId();
+                    String name = arrayList.get(i).getName();
+                    String company = arrayList.get(i).getCompany();
+                    String phone = arrayList.get(i).getPhone();
 
-                JSONObject jsonObject = (JSONObject) array.get(i);
-                String company = (String) jsonObject.get("company");
+                    if (!arrayList.contains(id)) {
+                        ItemModel friend = new ItemModel();
+                        friend.setId(id);
+                        friend.setName(name);
+                        friend.setCompany(company);
+                        friend.setPhone(phone);
+                        arrayListCopy.add(friend);
 
-                if (company.length() > 0) {
-                    String id = (String) jsonObject.get("_id");
-                    String name = (String) jsonObject.get("name");
-                    String phone = (String) jsonObject.get("phone");
-
-                    ItemModel coWorker = new ItemModel();
-                    coWorker.setId(id);
-                    coWorker.setName(name);
-                    coWorker.setCompany(company);
-                    coWorker.setPhone(phone);
-                    arrayList.add(coWorker);
+                    }
                 }
             }
-        } catch (ParseException e) {
+            arrayList = arrayListCopy;
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
         CustomAdapter adapter = new CustomAdapter(this, arrayList);
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
